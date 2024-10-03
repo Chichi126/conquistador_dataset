@@ -7,10 +7,14 @@ from datetime import datetime, timedelta
 fake = Faker('yo_NG')
 
 # Function to generate random student data
+
 def generate_student_data(num_records):
     students = []
     
     for i in range(1, num_records + 1):
+        # Create a biased distribution: more chances for 1-8, fewer for 9
+        activity_choices = [None] * 10 + [1, 2, 3] * 12 + [4] * 7  # 20% NULL, fewer 9's
+        media_choice = ['Yes'] * 60 + ['No'] * 40 
         student = {
             'StudentID': i,
             'FirstName': fake.first_name(),
@@ -25,18 +29,25 @@ def generate_student_data(num_records):
             'PhoneNumber': fake.phone_number(),
             'GuardianID': random.randint(1, 50),
             'ClassID': random.randint(1, 3),
-            'ActivityID': random.randint(1, 5)
+            'SocialMedia_Access': random.choice(media_choice),
+            'ActivityID': random.choice(activity_choices)  # Use biased choices
         }
+
+        # Ensure 'ActivityID' is None or an integer, not a float
+        if student['ActivityID'] is not None:
+            student['ActivityID'] = int(student['ActivityID'])
+
         students.append(student)
     
     return students
 
-# Generate 50 students
-student_data = generate_student_data(400)
+# Generate 50 student records
+student_data = generate_student_data(500)
+
+# Example output of the first 5 records
 student_df = pd.DataFrame(student_data)
-# Print or export the data
-#print(df.head())
 student_df.to_csv('students.csv', index=False)
+print(student_df.head())
 
 
 # Function to generate random guardian data
@@ -45,7 +56,7 @@ def generate_guardian_data(num_records):
     
     for i in range(1, num_records + 1):
         guardian = {
-            'GuardianID': random.randint(1, 50),
+            'GuardianID': i,
             'GivenName': fake.first_name(),
             'Surname': fake.last_name(),
             'EmailAddress': fake.email(),
@@ -68,7 +79,7 @@ def generate_teacher_data(num_records):
     
     for i in range(1, num_records + 1):
         teacher = {
-            'TeacherID': random.randint(1, 15),
+            'TeacherID': i,
             'FirstName': fake.first_name(),
             'Surname': fake.last_name(),
             'EmailAddress': fake.unique.email(),
@@ -217,14 +228,10 @@ subject_df.to_csv('subject.csv', index= False)
 
 # Define common extracurricular activities
 activity_names = {
-    1: 'Football',
-    2: 'Basketball',
-    3: 'Music Band',
-    4: 'Drama Club',
-    5: 'Art Club',
-    6: 'Debate Club',
-    7: 'Science Club',
-    8: 'Dance Club'
+    1: 'Sports club',
+    2: 'Social club',
+    3: 'Religious Club',
+    4: 'Extra lessons club'
 }
 
 # Function to generate random extracurricular activity data
@@ -352,4 +359,4 @@ subject_performance_df = pd.DataFrame(subject_performance_data)
 subject_performance_df.to_csv('subject_performance.csv', index=False)
 
 # Print the DataFrame for verification
-print(subject_performance_df.head())
+#print(subject_performance_df.head())
